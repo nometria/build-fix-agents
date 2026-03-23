@@ -1,0 +1,36 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "build-fix"
+version = "0.1.0"
+description = "Auto-repair TypeScript/JS build errors: duplicates, missing exports, spelling typos, unused imports."
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.9"
+keywords = ["typescript", "javascript", "build", "lint", "fix", "vite", "tsc"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Topic :: Software Development :: Build Tools",
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+]
+dependencies = []  # zero runtime dependencies
+
+[project.scripts]
+# Entry point: `build-fix .` runs src/cli.py:main
+build-fix = "build_fix.cli:main"
+
+[tool.hatch.build.targets.wheel]
+# Package the `src/` directory as `build_fix`
+packages = [{ include = "build_fix", from = "src" }]
+
+[tool.hatch.build.targets.wheel.sources]
+# Map src/ → build_fix (package name used in imports)
+"src" = "build_fix"
+
+[project.urls]
+Repository = "https://github.com/YOUR_ORG/build-fix"
+Changelog  = "https://github.com/YOUR_ORG/build-fix/releases"
