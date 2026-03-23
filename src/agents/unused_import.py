@@ -27,7 +27,7 @@ class UnusedImportAgent(BaseAgent):
 
     def _remove_unused(self, rel_path: str, text: str) -> List[AgentEdit]:
         lines = text.split("\n")
-        import_idxs = [i for i, l in enumerate(lines) if re.match(r"^\s*import\s+", l)]
+        import_idxs = [i for i, ln in enumerate(lines) if re.match(r"^\s*import\s+", ln)]
 
         for idx in import_idxs:
             line = lines[idx]
