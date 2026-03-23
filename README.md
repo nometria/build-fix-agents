@@ -6,6 +6,27 @@ Parses your build log and surgically patches source files. Zero config, zero dep
 
 ---
 
+## Quick start
+
+```bash
+# Clone and install
+git clone https://github.com/ownmy-app/build-fix-agents
+cd build-fix-agents
+pip install -e .
+
+# Scan current directory and apply fixes (verifies with npm run build)
+build-fix .
+
+# Provide a captured build log for more accurate fixes
+npm run build 2>&1 | tee build.log
+build-fix . --log build.log
+
+# Run tests
+pytest tests/ -v
+```
+
+---
+
 ## What it fixes
 
 | Agent | Trigger | Fix |
@@ -25,8 +46,8 @@ Safety: applies at most **5 edits per file** and **10 edits total**. Reverts eve
 pip install build-fix          # PyPI (coming soon)
 
 # or run from source:
-git clone https://github.com/YOUR_ORG/build-fix
-cd build-fix
+git clone https://github.com/ownmy-app/build-fix-agents
+cd build-fix-agents
 pip install -e .
 ```
 
@@ -85,3 +106,31 @@ Register in `src/agents/__init__.py → get_all_agents()`.
 - VS Code extension marketplace: $5–9/mo subscription
 - GitHub App: auto-fix PR on CI failure — charge per repo/seat
 - Cursor / Windsurf plugin: native AI-fix integration
+
+---
+
+## Example output
+
+Running `pytest tests/ -v`:
+
+```
+============================= test session starts ==============================
+platform darwin -- Python 3.13.9, pytest-9.0.2, pluggy-1.5.0
+cachedir: .pytest_cache
+rootdir: /tmp/ownmy-releases/build-fix-agents
+configfile: pyproject.toml
+plugins: anyio-4.12.1, cov-7.1.0
+collecting ... collected 9 items
+
+tests/test_agents.py::test_duplicate_var_detected PASSED                 [ 11%]
+tests/test_agents.py::test_duplicate_var_no_false_positive PASSED        [ 22%]
+tests/test_agents.py::test_missing_export_adds_keyword PASSED            [ 33%]
+tests/test_agents.py::test_missing_export_skips_already_exported PASSED  [ 44%]
+tests/test_agents.py::test_export_spelling_fixes_typo PASSED             [ 55%]
+tests/test_agents.py::test_levenshtein_threshold PASSED                  [ 66%]
+tests/test_agents.py::test_unused_import_whole_line_removed PASSED       [ 77%]
+tests/test_agents.py::test_unused_import_partial_removal PASSED          [ 88%]
+tests/test_agents.py::test_no_edits_on_clean_file PASSED                 [100%]
+
+============================== 9 passed in 0.04s ===============================
+```

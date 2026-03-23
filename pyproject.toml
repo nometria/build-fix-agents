@@ -17,20 +17,20 @@ classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
 ]
-dependencies = []  # zero runtime dependencies
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0", "pytest-cov"]
 
 [project.scripts]
-# Entry point: `build-fix .` runs src/cli.py:main
 build-fix = "build_fix.cli:main"
 
 [tool.hatch.build.targets.wheel]
-# Package the `src/` directory as `build_fix`
-packages = [{ include = "build_fix", from = "src" }]
+packages = ["build_fix"]
 
-[tool.hatch.build.targets.wheel.sources]
-# Map src/ → build_fix (package name used in imports)
-"src" = "build_fix"
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
 
 [project.urls]
-Repository = "https://github.com/YOUR_ORG/build-fix"
-Changelog  = "https://github.com/YOUR_ORG/build-fix/releases"
+Repository = "https://github.com/ownmy-app/build-fix-agents"

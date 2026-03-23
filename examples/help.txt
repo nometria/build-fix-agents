@@ -1,0 +1,15 @@
+usage: build-fix [-h] [--log FILE] [--cmd CMD] [--no-verify] [--json]
+                 [project_root]
+
+Auto-repair TypeScript/JS build errors: duplicates, missing exports, spelling,
+unused imports.
+
+positional arguments:
+  project_root  Path to project root (default: current directory)
+
+options:
+  -h, --help    show this help message and exit
+  --log FILE    Path to a captured build log file (improves accuracy)
+  --cmd CMD     Build command to verify fixes (default: npm run build)
+  --no-verify   Apply fixes without running build verification
+  --json        Output result as JSON
