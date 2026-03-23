@@ -26,11 +26,11 @@ dev = ["pytest>=8.0", "pytest-cov"]
 build-fix = "build_fix.cli:main"
 
 [tool.hatch.build.targets.wheel]
-packages = ["build_fix"]
+packages = ["src/build_fix"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["src"]
 
 [project.urls]
-Repository = "https://github.com/ownmy-app/build-fix-agents"
+Repository = "https://github.com/nometria/build-fix-agents"
