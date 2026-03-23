@@ -11,10 +11,10 @@ from pathlib import Path
 # Allow running from repo root without installing
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-from agents.duplicate_var import DuplicateVarAgent
-from agents.missing_export import MissingExportAgent
-from agents.export_spelling import ExportSpellingAgent
-from agents.unused_import import UnusedImportAgent
+from build_fix.agents.duplicate_var import DuplicateVarAgent
+from build_fix.agents.missing_export import MissingExportAgent
+from build_fix.agents.export_spelling import ExportSpellingAgent
+from build_fix.agents.unused_import import UnusedImportAgent
 
 
 # ── helpers ───────────────────────────────────────────────────────────────────
@@ -94,7 +94,7 @@ def test_export_spelling_fixes_typo():
 
 
 def test_levenshtein_threshold():
-    from agents.export_spelling import _levenshtein
+    from build_fix.agents.export_spelling import _levenshtein
     assert _levenshtein("kitten", "sitting") == 3
     assert _levenshtein("MyComponent", "MyComponnet") == 2
     assert _levenshtein("abc", "abc") == 0
@@ -148,7 +148,7 @@ def test_no_edits_on_clean_file():
             export const double = (x: number) => add(x, x);
         """).lstrip()
     })
-    from agents import get_all_agents
+    from build_fix.agents import get_all_agents
     all_edits = []
     for agent in get_all_agents():
         all_edits.extend(agent.run(project).edits)
