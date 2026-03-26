@@ -10,7 +10,7 @@ Parses your build log and surgically patches source files. Zero config, zero dep
 
 ```bash
 # Clone and install
-git clone https://github.com/ownmy-app/build-fix-agents
+git clone https://github.com/nometria/build-fix-agents
 cd build-fix-agents
 pip install -e .
 
@@ -43,10 +43,10 @@ Safety: applies at most **5 edits per file** and **10 edits total**. Reverts eve
 ## Install
 
 ```bash
-pip install build-fix          # PyPI (coming soon)
+pip install build-fix
 
 # or run from source:
-git clone https://github.com/ownmy-app/build-fix-agents
+git clone https://github.com/nometria/build-fix-agents
 cd build-fix-agents
 pip install -e .
 ```
