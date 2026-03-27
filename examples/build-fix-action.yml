@@ -1,0 +1,51 @@
+# .github/workflows/build-fix.yml
+#
+# Automatically fix build errors and open a PR when CI fails.
+# Uses the nometria/build-fix-agents GitHub Action.
+
+name: Auto-fix build errors
+
+on:
+  workflow_run:
+    workflows: ["CI"]        # Name of your CI workflow
+    types: [completed]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  build-fix:
+    runs-on: ubuntu-latest
+    # Only run when CI failed on a push (not PRs — avoid infinite loops)
+    if: >
+      github.event.workflow_run.conclusion == 'failure' &&
+      github.event.workflow_run.event == 'push'
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_branch }}
+          fetch-depth: 0
+
+      # Optional: capture a fresh build log for better accuracy
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Capture build log
+        id: build
+        continue-on-error: true
+        run: npm run build 2>&1 | tee build.log
+
+      # Run build-fix and open a PR
+      - uses: nometria/build-fix-agents@main
+        with:
+          project_path: '.'
+          build_log: 'build.log'
+          build_cmd: 'npm run build'
+          auto_pr: 'true'
+          python_version: '3.11'

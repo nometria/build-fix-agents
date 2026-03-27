@@ -1,0 +1,27 @@
+{
+  "name": "build-fix",
+  "version": "0.1.2",
+  "description": "Auto-repair TypeScript/JS build errors in one command. Zero config, zero dependencies.",
+  "bin": {
+    "build-fix": "./bin/build-fix.sh"
+  },
+  "keywords": [
+    "typescript",
+    "javascript",
+    "build",
+    "fix",
+    "lint",
+    "vite",
+    "tsc",
+    "auto-fix"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nometria/build-fix-agents"
+  },
+  "license": "MIT",
+  "author": "nometria",
+  "files": [
+    "bin/build-fix.sh"
+  ]
+}

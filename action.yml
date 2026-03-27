@@ -1,0 +1,118 @@
+name: 'Build Fix'
+description: 'Auto-repair TypeScript/JS build errors on failed CI builds and optionally open a PR with fixes.'
+author: 'nometria'
+
+branding:
+  icon: 'tool'
+  color: 'blue'
+
+inputs:
+  project_path:
+    description: 'Path to the project root to fix (relative to repository root)'
+    required: false
+    default: '.'
+  python_version:
+    description: 'Python version to use for running build-fix'
+    required: false
+    default: '3.11'
+  auto_pr:
+    description: 'Automatically open a PR with the fixes if any were applied'
+    required: false
+    default: 'true'
+  build_cmd:
+    description: 'Build command used to verify fixes (default: npm run build)'
+    required: false
+    default: 'npm run build'
+  build_log:
+    description: 'Path to a captured build log file for more accurate fixes'
+    required: false
+    default: ''
+
+outputs:
+  fixed:
+    description: 'Whether any fixes were applied (true/false)'
+    value: ${{ steps.run-fix.outputs.fixed }}
+  pr_url:
+    description: 'URL of the opened PR (empty if auto_pr is false or no fixes applied)'
+    value: ${{ steps.open-pr.outputs.pr_url }}
+  result_json:
+    description: 'JSON output from build-fix with details of applied edits'
+    value: ${{ steps.run-fix.outputs.result_json }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ inputs.python_version }}
+
+    - name: Install build-fix
+      shell: bash
+      run: pip install build-fix
+
+    - name: Run build-fix
+      id: run-fix
+      shell: bash
+      working-directory: ${{ inputs.project_path }}
+      run: |
+        LOG_ARG=""
+        if [ -n "${{ inputs.build_log }}" ] && [ -f "${{ inputs.build_log }}" ]; then
+          LOG_ARG="--log ${{ inputs.build_log }}"
+        fi
+
+        set +e
+        RESULT=$(build-fix . --cmd "${{ inputs.build_cmd }}" $LOG_ARG --json 2>&1)
+        EXIT_CODE=$?
+        set -e
+
+        echo "result_json<<EOF" >> $GITHUB_OUTPUT
+        echo "$RESULT" >> $GITHUB_OUTPUT
+        echo "EOF" >> $GITHUB_OUTPUT
+
+        # Check if fixes were applied by looking for applied_edits in the JSON
+        if echo "$RESULT" | python3 -c "import sys,json; d=json.load(sys.stdin); sys.exit(0 if d.get('applied_edits') else 1)" 2>/dev/null; then
+          echo "fixed=true" >> $GITHUB_OUTPUT
+          echo "Build-fix applied fixes successfully."
+        else
+          echo "fixed=false" >> $GITHUB_OUTPUT
+          echo "No fixes were applied."
+        fi
+
+    - name: Open PR with fixes
+      id: open-pr
+      if: ${{ steps.run-fix.outputs.fixed == 'true' && inputs.auto_pr == 'true' }}
+      shell: bash
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        BRANCH="build-fix/auto-$(date +%Y%m%d-%H%M%S)"
+        git config user.name "build-fix[bot]"
+        git config user.email "build-fix[bot]@users.noreply.github.com"
+        git checkout -b "$BRANCH"
+        git add -A
+        git commit -m "fix: auto-repair build errors via build-fix
+
+        Applied by nometria/build-fix-agents GitHub Action.
+        See the JSON output in the workflow run for details."
+
+        git push origin "$BRANCH"
+
+        PR_URL=$(gh pr create \
+          --title "fix: auto-repair build errors" \
+          --body "## Build Fix
+
+        This PR was automatically created by the [build-fix](https://github.com/nometria/build-fix-agents) GitHub Action.
+
+        The following fixes were applied after a failed CI build:
+
+        \`\`\`json
+        ${{ steps.run-fix.outputs.result_json }}
+        \`\`\`
+
+        Please review the changes and merge if they look correct." \
+          --head "$BRANCH" \
+          --base "${{ github.event.repository.default_branch }}")
+
+        echo "pr_url=$PR_URL" >> $GITHUB_OUTPUT
+        echo "Opened PR: $PR_URL"

@@ -45,6 +45,9 @@ Safety: applies at most **5 edits per file** and **10 edits total**. Reverts eve
 ```bash
 pip install build-fix
 
+# or via npx (installs Python package automatically):
+npx build-fix .
+
 # or run from source:
 git clone https://github.com/nometria/build-fix-agents
 cd build-fix-agents
@@ -75,6 +78,90 @@ build-fix . --json
 
 ---
 
+## GitHub Action
+
+Auto-fix build errors on failed CI and open a PR with the fixes.
+
+```yaml
+# .github/workflows/build-fix.yml
+name: Auto-fix build errors
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  build-fix:
+    runs-on: ubuntu-latest
+    if: >
+      github.event.workflow_run.conclusion == 'failure' &&
+      github.event.workflow_run.event == 'push'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_branch }}
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: npm ci
+
+      - name: Capture build log
+        continue-on-error: true
+        run: npm run build 2>&1 | tee build.log
+
+      - uses: nometria/build-fix-agents@main
+        with:
+          project_path: '.'
+          build_log: 'build.log'
+          build_cmd: 'npm run build'
+          auto_pr: 'true'
+```
+
+### Action inputs
+
+| Input | Default | Description |
+|-------|---------|-------------|
+| `project_path` | `.` | Path to the project root |
+| `python_version` | `3.11` | Python version for running build-fix |
+| `auto_pr` | `true` | Open a PR with fixes automatically |
+| `build_cmd` | `npm run build` | Build command to verify fixes |
+| `build_log` | | Path to a captured build log file |
+
+### Action outputs
+
+| Output | Description |
+|--------|-------------|
+| `fixed` | `true` if fixes were applied |
+| `pr_url` | URL of the opened PR (if `auto_pr` is true) |
+| `result_json` | Full JSON result from build-fix |
+
+See [`examples/build-fix-action.yml`](examples/build-fix-action.yml) for a complete workflow example.
+
+---
+
+## npx wrapper
+
+Run build-fix without installing Python packages manually:
+
+```bash
+# Installs the Python package and runs build-fix
+npx build-fix .
+
+# All CLI flags work the same way
+npx build-fix ./my-app --log build.log --cmd "pnpm build"
+npx build-fix . --no-verify --json
+```
+
+Requires Python 3.9+ on the system. The wrapper script auto-installs the `build-fix` PyPI package if it is not already present.
+
+---
+
 ## Extend with custom agents
 
 ```python
@@ -95,10 +182,10 @@ Register in `src/agents/__init__.py → get_all_agents()`.
 ---
 
 ## Immediate next steps (to productionise)
-1. Publish to PyPI: `pip install build-fix`
-2. Publish to npm as a wrapper: `npx build-fix .`
+1. ~~Publish to PyPI: `pip install build-fix`~~ Done
+2. ~~Publish to npm as a wrapper: `npx build-fix .`~~ Done (`package.json` + `bin/build-fix.sh`)
 3. Add a VS Code extension that runs on save-with-errors
-4. Add GitHub Action: auto-runs on failed CI builds and opens a PR with fixes
+4. ~~Add GitHub Action: auto-runs on failed CI builds and opens a PR with fixes~~ Done (`action.yml`)
 
 ---
 
