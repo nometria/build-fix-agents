@@ -82,6 +82,10 @@ build-fix . --json
 
 Auto-fix build errors on failed CI and open a PR with the fixes.
 
+### Option A: Composite action (`uses: nometria/build-fix-agents@v1`)
+
+Add this to your existing workflow after a failed build step:
+
 ```yaml
 # .github/workflows/build-fix.yml
 name: Auto-fix build errors
@@ -115,7 +119,7 @@ jobs:
         continue-on-error: true
         run: npm run build 2>&1 | tee build.log
 
-      - uses: nometria/build-fix-agents@main
+      - uses: nometria/build-fix-agents@v1
         with:
           project_path: '.'
           build_log: 'build.log'
@@ -123,17 +127,18 @@ jobs:
           auto_pr: 'true'
 ```
 
-### Action inputs
+#### Action inputs
 
 | Input | Default | Description |
 |-------|---------|-------------|
 | `project_path` | `.` | Path to the project root |
 | `python_version` | `3.11` | Python version for running build-fix |
+| `node_version` | `20` | Node.js version (set to `''` to skip Node setup) |
 | `auto_pr` | `true` | Open a PR with fixes automatically |
 | `build_cmd` | `npm run build` | Build command to verify fixes |
 | `build_log` | | Path to a captured build log file |
 
-### Action outputs
+#### Action outputs
 
 | Output | Description |
 |--------|-------------|
@@ -141,7 +146,46 @@ jobs:
 | `pr_url` | URL of the opened PR (if `auto_pr` is true) |
 | `result_json` | Full JSON result from build-fix |
 
-See [`examples/build-fix-action.yml`](examples/build-fix-action.yml) for a complete workflow example.
+### Option B: Reusable workflow (`workflow_call`)
+
+Call the full auto-fix workflow from any repo. It handles checkout, dependency install, build, fix, and PR creation end-to-end:
+
+```yaml
+# .github/workflows/auto-fix.yml (in YOUR repo)
+name: Auto-fix on build failure
+on:
+  push:
+    branches: [main]
+
+jobs:
+  auto-fix:
+    uses: nometria/build-fix-agents/.github/workflows/auto-fix.yml@v1
+    with:
+      build_command: "npm run build"
+      node_version: "20"
+      python_version: "3.11"
+      create_pr: true
+```
+
+#### Reusable workflow inputs
+
+| Input | Default | Description |
+|-------|---------|-------------|
+| `build_command` | `npm run build` | Build command to run |
+| `python_version` | `3.11` | Python version for build-fix |
+| `node_version` | `20` | Node.js version for the project build |
+| `create_pr` | `true` | Create a PR with fixes |
+
+#### Reusable workflow outputs
+
+| Output | Description |
+|--------|-------------|
+| `fixed` | `true` if fixes were applied |
+| `pr_url` | URL of the opened PR |
+
+### Manual trigger
+
+The reusable workflow also supports `workflow_dispatch`, so you can trigger it manually from the Actions tab in the GitHub UI.
 
 ---
 

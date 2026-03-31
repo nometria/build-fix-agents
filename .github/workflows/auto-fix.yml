@@ -1,0 +1,165 @@
+name: Auto-fix build errors
+
+on:
+  workflow_call:
+    inputs:
+      build_command:
+        description: "Build command to run (e.g. npm run build, pnpm build)"
+        type: string
+        default: "npm run build"
+      python_version:
+        description: "Python version for running build-fix"
+        type: string
+        default: "3.11"
+      node_version:
+        description: "Node.js version for building the project"
+        type: string
+        default: "20"
+      create_pr:
+        description: "Create a PR with fixes if any were applied"
+        type: boolean
+        default: true
+    outputs:
+      fixed:
+        description: "Whether any fixes were applied (true/false)"
+        value: ${{ jobs.auto-fix.outputs.fixed }}
+      pr_url:
+        description: "URL of the opened PR (empty if create_pr is false or no fixes)"
+        value: ${{ jobs.auto-fix.outputs.pr_url }}
+
+  workflow_dispatch:
+    inputs:
+      build_command:
+        description: "Build command to run"
+        type: string
+        default: "npm run build"
+      python_version:
+        description: "Python version for running build-fix"
+        type: choice
+        options: ["3.10", "3.11", "3.12"]
+        default: "3.11"
+      node_version:
+        description: "Node.js version"
+        type: choice
+        options: ["18", "20", "22"]
+        default: "20"
+      create_pr:
+        description: "Create a PR with fixes"
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  auto-fix:
+    runs-on: ubuntu-latest
+    outputs:
+      fixed: ${{ steps.run-fix.outputs.fixed }}
+      pr_url: ${{ steps.open-pr.outputs.pr_url }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ inputs.node_version }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ inputs.python_version }}
+
+      - name: Install project dependencies
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci
+          elif [ -f pnpm-lock.yaml ]; then
+            npm install -g pnpm && pnpm install --frozen-lockfile
+          elif [ -f yarn.lock ]; then
+            npm install -g yarn && yarn install --frozen-lockfile
+          elif [ -f package.json ]; then
+            npm install
+          fi
+
+      - name: Run build and capture log
+        id: build
+        continue-on-error: true
+        run: |
+          set +e
+          ${{ inputs.build_command }} 2>&1 | tee build.log
+          BUILD_EXIT=${PIPESTATUS[0]}
+          set -e
+          echo "exit_code=$BUILD_EXIT" >> $GITHUB_OUTPUT
+          if [ "$BUILD_EXIT" -eq 0 ]; then
+            echo "Build succeeded, no fixes needed."
+          else
+            echo "Build failed with exit code $BUILD_EXIT. Running build-fix..."
+          fi
+
+      - name: Install build-fix
+        if: steps.build.outputs.exit_code != '0'
+        run: pip install build-fix
+
+      - name: Run build-fix
+        id: run-fix
+        if: steps.build.outputs.exit_code != '0'
+        run: |
+          set +e
+          RESULT=$(build-fix . --log build.log --cmd "${{ inputs.build_command }}" --json 2>&1)
+          FIX_EXIT=$?
+          set -e
+
+          echo "result_json<<EOF" >> $GITHUB_OUTPUT
+          echo "$RESULT" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+          if echo "$RESULT" | python3 -c "import sys,json; d=json.load(sys.stdin); sys.exit(0 if d.get('applied_edits') else 1)" 2>/dev/null; then
+            echo "fixed=true" >> $GITHUB_OUTPUT
+            echo "build-fix applied fixes successfully."
+          else
+            echo "fixed=false" >> $GITHUB_OUTPUT
+            echo "No fixes were applied."
+          fi
+
+      - name: Create PR with fixes
+        id: open-pr
+        if: steps.run-fix.outputs.fixed == 'true' && inputs.create_pr
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          BRANCH="build-fix/auto-$(date +%Y%m%d-%H%M%S)"
+          git config user.name "build-fix[bot]"
+          git config user.email "build-fix[bot]@users.noreply.github.com"
+          git checkout -b "$BRANCH"
+          git add -A
+          git commit -m "fix: auto-repair build errors via build-fix
+
+          Applied by build-fix GitHub Action.
+          See workflow run for full JSON output."
+
+          git push origin "$BRANCH"
+
+          PR_URL=$(gh pr create \
+            --title "fix: auto-repair build errors" \
+            --body "## Build Fix
+
+          This PR was automatically created by [build-fix](https://github.com/nometria/build-fix-agents).
+
+          ### Applied fixes
+
+          \`\`\`json
+          ${{ steps.run-fix.outputs.result_json }}
+          \`\`\`
+
+          Please review the changes and merge if correct." \
+            --head "$BRANCH" \
+            --base "${{ github.event.repository.default_branch }}")
+
+          echo "pr_url=$PR_URL" >> $GITHUB_OUTPUT
+          echo "Opened PR: $PR_URL"

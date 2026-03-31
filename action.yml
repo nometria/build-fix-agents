@@ -15,6 +15,10 @@ inputs:
     description: 'Python version to use for running build-fix'
     required: false
     default: '3.11'
+  node_version:
+    description: 'Node.js version to set up (set to empty string to skip Node setup)'
+    required: false
+    default: '20'
   auto_pr:
     description: 'Automatically open a PR with the fixes if any were applied'
     required: false
@@ -42,6 +46,12 @@ outputs:
 runs:
   using: 'composite'
   steps:
+    - name: Set up Node.js
+      if: ${{ inputs.node_version != '' }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ inputs.node_version }}
+
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
