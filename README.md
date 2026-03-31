@@ -1,16 +1,6 @@
 # build-fix
 
-<div align="center">
-
-**[Nometria](https://nometria.com)** takes AI-built apps to production on AWS — secure, scalable, ready for real users.
-
-<sub><i>AI code generators produce apps fast, but build errors slow down deployment. We built build-fix to automatically patch common TypeScript errors so our customers' apps ship without delay.</i></sub>
-
-[![Deploy with Nometria](https://img.shields.io/badge/Deploy%20with-Nometria-111827?style=for-the-badge)](https://nometria.com)
-
-</div>
-
----
+Built by the [Nometria](https://nometria.com) team — we take AI-built apps to production.
 
 > Auto-repair TypeScript / JavaScript build errors in one command.
 
@@ -278,6 +268,3 @@ tests/test_agents.py::test_no_edits_on_clean_file PASSED                 [100%]
 ============================== 9 passed in 0.04s ===============================
 ```
 
----
-
-<p align="center">Made with ❤️ by <a href="https://nometria.com">Nometria</a> — deploy AI apps to production in one click</p>
