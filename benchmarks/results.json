@@ -10,28 +10,28 @@
         "expected_change": true,
         "produced_edit": true,
         "correct": true,
-        "time_ms": 0.38
+        "time_ms": 0.35
       },
       {
         "name": "multiple_unused_named",
         "expected_change": true,
         "produced_edit": true,
         "correct": true,
-        "time_ms": 0.31
+        "time_ms": 0.29
       },
       {
         "name": "all_unused",
         "expected_change": true,
         "produced_edit": true,
         "correct": true,
-        "time_ms": 0.24
+        "time_ms": 0.32
       },
       {
         "name": "type_import_unused",
         "expected_change": true,
         "produced_edit": true,
         "correct": true,
-        "time_ms": 0.29
+        "time_ms": 0.28
       },
       {
         "name": "no_unused",
@@ -53,14 +53,14 @@
         "expected_change": true,
         "produced_edit": true,
         "correct": true,
-        "time_ms": 0.36
+        "time_ms": 0.34
       },
       {
         "name": "duplicate_function",
         "expected_change": true,
         "produced_edit": true,
         "correct": true,
-        "time_ms": 0.27
+        "time_ms": 0.26
       },
       {
         "name": "duplicate_let",
@@ -74,7 +74,7 @@
         "expected_change": false,
         "produced_edit": false,
         "correct": true,
-        "time_ms": 0.12
+        "time_ms": 0.11
       }
     ]
   },
@@ -89,21 +89,21 @@
         "expected_change": true,
         "produced_edit": true,
         "correct": true,
-        "time_ms": 0.5
+        "time_ms": 0.38
       },
       {
         "name": "missing_function_export",
         "expected_change": true,
         "produced_edit": true,
         "correct": true,
-        "time_ms": 0.62
+        "time_ms": 0.61
       },
       {
         "name": "already_exported",
         "expected_change": false,
         "produced_edit": false,
         "correct": true,
-        "time_ms": 0.16
+        "time_ms": 0.14
       }
     ]
   },
@@ -125,14 +125,14 @@
         "expected_change": true,
         "produced_edit": true,
         "correct": true,
-        "time_ms": 0.21
+        "time_ms": 0.13
       },
       {
         "name": "no_typo",
         "expected_change": false,
         "produced_edit": false,
         "correct": true,
-        "time_ms": 0.12
+        "time_ms": 0.1
       }
     ]
   },
@@ -147,28 +147,28 @@
         "expected_change": true,
         "produced_edit": true,
         "correct": true,
-        "time_ms": 0.41
+        "time_ms": 0.32
       },
       {
         "name": "missing_interface_export",
         "expected_change": true,
         "produced_edit": true,
         "correct": true,
-        "time_ms": 0.38
+        "time_ms": 0.34
       },
       {
         "name": "missing_type_export",
         "expected_change": true,
         "produced_edit": true,
         "correct": true,
-        "time_ms": 0.4
+        "time_ms": 0.52
       },
       {
         "name": "missing_enum_export",
         "expected_change": true,
         "produced_edit": true,
         "correct": true,
-        "time_ms": 0.5
+        "time_ms": 0.45
       }
     ]
   },
@@ -190,14 +190,14 @@
         "expected_change": true,
         "produced_edit": true,
         "correct": true,
-        "time_ms": 0.15
+        "time_ms": 0.16
       },
       {
         "name": "no_implicit_any",
         "expected_change": false,
         "produced_edit": false,
         "correct": true,
-        "time_ms": 0.16
+        "time_ms": 0.14
       }
     ]
   },
@@ -212,14 +212,14 @@
         "expected_change": true,
         "produced_edit": true,
         "correct": true,
-        "time_ms": 0.27
+        "time_ms": 0.26
       },
       {
         "name": "no_missing_return_type",
         "expected_change": false,
         "produced_edit": false,
         "correct": true,
-        "time_ms": 0.18
+        "time_ms": 0.17
       }
     ]
   }
