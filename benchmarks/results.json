@@ -1,0 +1,139 @@
+{
+  "unused_import": {
+    "detection_rate": "5/5",
+    "fix_accuracy": "5/5",
+    "accuracy_pct": 100,
+    "avg_ms": 0.3,
+    "cases": [
+      {
+        "name": "single_unused_default",
+        "expected_change": true,
+        "produced_edit": true,
+        "correct": true,
+        "time_ms": 0.39
+      },
+      {
+        "name": "multiple_unused_named",
+        "expected_change": true,
+        "produced_edit": true,
+        "correct": true,
+        "time_ms": 0.3
+      },
+      {
+        "name": "all_unused",
+        "expected_change": true,
+        "produced_edit": true,
+        "correct": true,
+        "time_ms": 0.17
+      },
+      {
+        "name": "type_import_unused",
+        "expected_change": true,
+        "produced_edit": true,
+        "correct": true,
+        "time_ms": 0.27
+      },
+      {
+        "name": "no_unused",
+        "expected_change": false,
+        "produced_edit": false,
+        "correct": true,
+        "time_ms": 0.16
+      }
+    ]
+  },
+  "duplicate_var": {
+    "detection_rate": "4/4",
+    "fix_accuracy": "4/4",
+    "accuracy_pct": 100,
+    "avg_ms": 0.3,
+    "cases": [
+      {
+        "name": "duplicate_const",
+        "expected_change": true,
+        "produced_edit": true,
+        "correct": true,
+        "time_ms": 0.47
+      },
+      {
+        "name": "duplicate_function",
+        "expected_change": true,
+        "produced_edit": true,
+        "correct": true,
+        "time_ms": 0.28
+      },
+      {
+        "name": "duplicate_let",
+        "expected_change": true,
+        "produced_edit": true,
+        "correct": true,
+        "time_ms": 0.2
+      },
+      {
+        "name": "no_duplicates",
+        "expected_change": false,
+        "produced_edit": false,
+        "correct": true,
+        "time_ms": 0.11
+      }
+    ]
+  },
+  "missing_export": {
+    "detection_rate": "3/3",
+    "fix_accuracy": "3/3",
+    "accuracy_pct": 100,
+    "avg_ms": 0.4,
+    "cases": [
+      {
+        "name": "missing_const_export",
+        "expected_change": true,
+        "produced_edit": true,
+        "correct": true,
+        "time_ms": 0.32
+      },
+      {
+        "name": "missing_function_export",
+        "expected_change": true,
+        "produced_edit": true,
+        "correct": true,
+        "time_ms": 0.65
+      },
+      {
+        "name": "already_exported",
+        "expected_change": false,
+        "produced_edit": false,
+        "correct": true,
+        "time_ms": 0.17
+      }
+    ]
+  },
+  "export_spelling": {
+    "detection_rate": "3/3",
+    "fix_accuracy": "3/3",
+    "accuracy_pct": 100,
+    "avg_ms": 0.2,
+    "cases": [
+      {
+        "name": "typo_one_char",
+        "expected_change": true,
+        "produced_edit": true,
+        "correct": true,
+        "time_ms": 0.32
+      },
+      {
+        "name": "typo_two_chars",
+        "expected_change": true,
+        "produced_edit": true,
+        "correct": true,
+        "time_ms": 0.15
+      },
+      {
+        "name": "no_typo",
+        "expected_change": false,
+        "produced_edit": false,
+        "correct": true,
+        "time_ms": 0.1
+      }
+    ]
+  }
+}

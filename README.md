@@ -42,6 +42,28 @@ Safety: applies at most **5 edits per file** and **10 edits total**. Reverts eve
 
 ---
 
+## Benchmark Results
+
+Tested against 15 synthetic TypeScript/JS files with known build errors. Each agent is measured for detection accuracy (does it find the error?), fix correctness (does the fix resolve it?), and speed.
+
+| Agent | Cases | Detection | Fix Accuracy | Avg Speed |
+|-------|-------|-----------|-------------|-----------|
+| `unused_import` | 5 | 100% | **100%** | 0.3 ms |
+| `duplicate_var` | 4 | 100% | **100%** | 0.3 ms |
+| `missing_export` | 3 | 100% | **100%** | 0.4 ms |
+| `export_spelling` | 3 | 100% | **100%** | 0.2 ms |
+| **Overall** | **15** | **100%** | **100%** | **0.3 ms** |
+
+Zero false positives — clean files are left untouched. All fixes verified against expected output.
+
+Run benchmarks yourself:
+
+```bash
+python benchmarks/run_benchmarks.py
+```
+
+---
+
 ## Install
 
 ```bash
