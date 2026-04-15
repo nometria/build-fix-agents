@@ -50,10 +50,17 @@ class DuplicateVarAgent(BaseAgent):
             if line_end == -1:
                 line_end = len(text)
             decl_line = text[pos:line_end]
+            # Try const/let/var pattern first
             old_decl = re.compile(
                 r"((?:export\s+)?(?:const|let|var)\s+)" + re.escape(name) + r"(\s*[=;])"
             )
             decl_new, n = old_decl.subn(r"\g<1>" + new_name + r"\g<2>", decl_line, count=1)
+            if not n:
+                # Try function declaration pattern
+                func_decl = re.compile(
+                    r"((?:export\s+)?function\s+)" + re.escape(name) + r"(\s*\()"
+                )
+                decl_new, n = func_decl.subn(r"\g<1>" + new_name + r"\g<2>", decl_line, count=1)
             if not n:
                 continue
             before = text[:pos]

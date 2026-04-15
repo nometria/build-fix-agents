@@ -43,7 +43,7 @@ class ExportSpellingAgent(BaseAgent):
                 rel = str(path.relative_to(project_root))
                 for exp in expected:
                     export_match = re.search(
-                        r"export\s+(?:\{\s*(\w+)\s*\}|\w+\s+(\w+)\s*[=;])", text
+                        r"export\s+(?:\{\s*(\w+)\s*\}|\w+\s+(\w+)\s*[=;(])", text
                     )
                     if export_match:
                         wrong = export_match.group(1) or export_match.group(2)
