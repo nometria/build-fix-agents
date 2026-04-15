@@ -1,6 +1,8 @@
 """
-MissingExportAgent — reads build log for "X is not exported" patterns
+MissingExportAgent -- reads build log for "X is not exported" patterns
 and adds `export` to matching declarations.
+
+Improved: also handles class, interface, type, and enum declarations.
 """
 import re
 from pathlib import Path
@@ -25,6 +27,10 @@ class MissingExportAgent(BaseAgent):
         not_exported += re.findall(
             r"['\"`]([A-Za-z_$][\w$]*)['\"`]\s*is not exported", build_log
         )
+        # Also match TS2305: Module '"./foo"' has no exported member 'Bar'.
+        not_exported += re.findall(
+            r"has no exported member\s*['\"`]([A-Za-z_$][\w$]*)['\"`]", build_log
+        )
         symbols = list(dict.fromkeys(not_exported))
 
         for path in source_files(project_root):
@@ -35,10 +41,14 @@ class MissingExportAgent(BaseAgent):
                     if re.search(r"^\s*export\s+.*\b" + re.escape(symbol) + r"\b", text, re.M):
                         continue
                     for pattern, replacement in [
-                        (r"^(\s*)(const\s+" + re.escape(symbol) + r"\s*[=;])", r"\1export \2"),
-                        (r"^(\s*)(let\s+" + re.escape(symbol) + r"\s*[=;])", r"\1export \2"),
-                        (r"^(\s*)(var\s+" + re.escape(symbol) + r"\s*[=;])", r"\1export \2"),
-                        (r"^(\s*)(function\s+" + re.escape(symbol) + r"\s*\()", r"\1export \2"),
+                        (r"^(\s*)(const\s+" + re.escape(symbol) + r"\s*[=;:])", r"\1export \2"),
+                        (r"^(\s*)(let\s+" + re.escape(symbol) + r"\s*[=;:])", r"\1export \2"),
+                        (r"^(\s*)(var\s+" + re.escape(symbol) + r"\s*[=;:])", r"\1export \2"),
+                        (r"^(\s*)(function\s+" + re.escape(symbol) + r"\s*[\(<])", r"\1export \2"),
+                        (r"^(\s*)(class\s+" + re.escape(symbol) + r"[\s{<])", r"\1export \2"),
+                        (r"^(\s*)(interface\s+" + re.escape(symbol) + r"[\s{<])", r"\1export \2"),
+                        (r"^(\s*)(type\s+" + re.escape(symbol) + r"\s*[=<])", r"\1export \2"),
+                        (r"^(\s*)(enum\s+" + re.escape(symbol) + r"[\s{])", r"\1export \2"),
                     ]:
                         new_text, n = re.subn(pattern, replacement, text, count=1, flags=re.MULTILINE)
                         if n:

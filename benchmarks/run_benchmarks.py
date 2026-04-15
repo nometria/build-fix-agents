@@ -23,6 +23,8 @@ from build_fix.agents.unused_import import UnusedImportAgent
 from build_fix.agents.duplicate_var import DuplicateVarAgent
 from build_fix.agents.missing_export import MissingExportAgent
 from build_fix.agents.export_spelling import ExportSpellingAgent
+from build_fix.agents.implicit_any import ImplicitAnyAgent
+from build_fix.agents.missing_return_type import MissingReturnTypeAgent
 
 
 # ── Test fixtures ────────────────────────────────────────────────────────
@@ -132,6 +134,78 @@ EXPORT_SPELLING_CASES = [
         "content": 'export const Button = () => {};\n',
         "build_log": "exported member 'Button' not found",
         "expected_fix": None,  # Name matches, no fix
+    },
+]
+
+MISSING_EXPORT_EXTENDED_CASES = [
+    {
+        "name": "missing_class_export",
+        "file": "models.ts",
+        "content": 'class UserModel {\n  id: number = 0;\n}\n',
+        "build_log": "Module './models' has no exported member 'UserModel'",
+        "expected_export": "UserModel",
+    },
+    {
+        "name": "missing_interface_export",
+        "file": "types.ts",
+        "content": 'interface Config {\n  port: number;\n}\n',
+        "build_log": "has no exported member 'Config'",
+        "expected_export": "Config",
+    },
+    {
+        "name": "missing_type_export",
+        "file": "types.ts",
+        "content": 'type UserId = string;\n',
+        "build_log": "has no exported member 'UserId'",
+        "expected_export": "UserId",
+    },
+    {
+        "name": "missing_enum_export",
+        "file": "enums.ts",
+        "content": 'enum Status {\n  Active,\n  Inactive,\n}\n',
+        "build_log": "has no exported member 'Status'",
+        "expected_export": "Status",
+    },
+]
+
+IMPLICIT_ANY_CASES = [
+    {
+        "name": "function_param_implicit_any",
+        "file": "handler.ts",
+        "content": 'function handleRequest(req, res) {\n  return res.json({ ok: true });\n}\nexport { handleRequest };\n',
+        "build_log": "TS7006: Parameter 'req' implicitly has an 'any' type.",
+        "expected_fix": ("req,", "req: any,"),
+    },
+    {
+        "name": "callback_param_implicit_any",
+        "file": "utils.ts",
+        "content": 'const process = (data) => {\n  return data;\n};\nexport { process };\n',
+        "build_log": "Parameter 'data' implicitly has an 'any' type",
+        "expected_fix": ("data)", "data: any)"),
+    },
+    {
+        "name": "no_implicit_any",
+        "file": "typed.ts",
+        "content": 'function greet(name: string) {\n  return `Hello ${name}`;\n}\nexport { greet };\n',
+        "build_log": "TS7006: Parameter 'name' implicitly has an 'any' type.",
+        "expected_fix": None,  # Already typed
+    },
+]
+
+MISSING_RETURN_TYPE_CASES = [
+    {
+        "name": "void_function_missing_return",
+        "file": "logger.ts",
+        "content": 'function logMessage(msg: string) {\n  console.log(msg);\n}\nexport { logMessage };\n',
+        "build_log": "'logMessage', which lacks return-type annotation, implicitly has an 'any' return type.",
+        "expected_fix": ("logMessage(msg: string) {", "logMessage(msg: string): void {"),
+    },
+    {
+        "name": "no_missing_return_type",
+        "file": "typed.ts",
+        "content": 'function getValue(): number {\n  return 42;\n}\nexport { getValue };\n',
+        "build_log": "'getValue', which lacks return-type annotation",
+        "expected_fix": None,  # Already has return type
     },
 ]
 
@@ -294,6 +368,81 @@ def main():
     print(f"  Fix accuracy:   {correct}/{total} ({correct/total*100:.0f}%)")
     print(f"  Avg speed:      {avg_time:.1f}ms per case")
     all_results["export_spelling"] = {
+        "detection_rate": f"{detected}/{total}",
+        "fix_accuracy": f"{correct}/{total}",
+        "accuracy_pct": round(correct / total * 100),
+        "avg_ms": round(avg_time, 1),
+        "cases": results,
+    }
+
+    # ── Missing Export Extended (class/interface/type/enum) ──
+    print("\n📋 Missing Export Extended (class/interface/type/enum)")
+    print("-" * 40)
+    agent = MissingExportAgent()
+    results = run_agent_test(agent, MISSING_EXPORT_EXTENDED_CASES, uses_build_log=True)
+    total = len(results)
+    correct = sum(1 for r in results if r["correct"])
+    detected = sum(1 for r in results if r["produced_edit"] == r["expected_change"])
+    avg_time = sum(r["time_ms"] for r in results) / total
+
+    for r in results:
+        status = "✅" if r["correct"] else "❌"
+        print(f"  {status} {r['name']}: {r['time_ms']:.1f}ms")
+
+    print(f"\n  Detection rate: {detected}/{total} ({detected/total*100:.0f}%)")
+    print(f"  Fix accuracy:   {correct}/{total} ({correct/total*100:.0f}%)")
+    print(f"  Avg speed:      {avg_time:.1f}ms per case")
+    all_results["missing_export_extended"] = {
+        "detection_rate": f"{detected}/{total}",
+        "fix_accuracy": f"{correct}/{total}",
+        "accuracy_pct": round(correct / total * 100),
+        "avg_ms": round(avg_time, 1),
+        "cases": results,
+    }
+
+    # ── Implicit Any Agent ──
+    print("\n📋 Implicit Any Agent")
+    print("-" * 40)
+    agent = ImplicitAnyAgent()
+    results = run_agent_test(agent, IMPLICIT_ANY_CASES, uses_build_log=True)
+    total = len(results)
+    correct = sum(1 for r in results if r["correct"])
+    detected = sum(1 for r in results if r["produced_edit"] == r["expected_change"])
+    avg_time = sum(r["time_ms"] for r in results) / total
+
+    for r in results:
+        status = "✅" if r["correct"] else "❌"
+        print(f"  {status} {r['name']}: {r['time_ms']:.1f}ms")
+
+    print(f"\n  Detection rate: {detected}/{total} ({detected/total*100:.0f}%)")
+    print(f"  Fix accuracy:   {correct}/{total} ({correct/total*100:.0f}%)")
+    print(f"  Avg speed:      {avg_time:.1f}ms per case")
+    all_results["implicit_any"] = {
+        "detection_rate": f"{detected}/{total}",
+        "fix_accuracy": f"{correct}/{total}",
+        "accuracy_pct": round(correct / total * 100),
+        "avg_ms": round(avg_time, 1),
+        "cases": results,
+    }
+
+    # ── Missing Return Type Agent ──
+    print("\n📋 Missing Return Type Agent")
+    print("-" * 40)
+    agent = MissingReturnTypeAgent()
+    results = run_agent_test(agent, MISSING_RETURN_TYPE_CASES, uses_build_log=True)
+    total = len(results)
+    correct = sum(1 for r in results if r["correct"])
+    detected = sum(1 for r in results if r["produced_edit"] == r["expected_change"])
+    avg_time = sum(r["time_ms"] for r in results) / total
+
+    for r in results:
+        status = "✅" if r["correct"] else "❌"
+        print(f"  {status} {r['name']}: {r['time_ms']:.1f}ms")
+
+    print(f"\n  Detection rate: {detected}/{total} ({detected/total*100:.0f}%)")
+    print(f"  Fix accuracy:   {correct}/{total} ({correct/total*100:.0f}%)")
+    print(f"  Avg speed:      {avg_time:.1f}ms per case")
+    all_results["missing_return_type"] = {
         "detection_rate": f"{detected}/{total}",
         "fix_accuracy": f"{correct}/{total}",
         "accuracy_pct": round(correct / total * 100),

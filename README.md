@@ -35,8 +35,10 @@ pytest tests/ -v
 |-------|---------|-----|
 | `unused_import` | Import name never referenced in file | Removes entire line or individual names |
 | `duplicate_var` | `const X` / `function X` declared twice | Renames second occurrence to `X_2` |
-| `missing_export` | Build log: `X is not exported` | Adds `export` keyword to the declaration |
+| `missing_export` | Build log: `X is not exported` | Adds `export` to const/let/var/function/class/interface/type/enum |
 | `export_spelling` | Build log: `expected X, found Y` | Fixes typo using Levenshtein distance ≤ 2 |
+| `implicit_any` | Build log: TS7006 `implicitly has 'any' type` | Adds `: any` annotation to parameters |
+| `missing_return_type` | Build log: TS7010 `lacks return-type annotation` | Adds `: void` return type |
 
 Safety: applies at most **5 edits per file** and **10 edits total**. Reverts everything if the build still fails after patching.
 
@@ -44,15 +46,17 @@ Safety: applies at most **5 edits per file** and **10 edits total**. Reverts eve
 
 ## Benchmark Results
 
-Tested against 15 synthetic TypeScript/JS files with known build errors. Each agent is measured for detection accuracy (does it find the error?), fix correctness (does the fix resolve it?), and speed.
+Tested against 24 synthetic TypeScript/JS files with known build errors. Each agent is measured for detection accuracy (does it find the error?), fix correctness (does the fix resolve it?), and speed.
 
 | Agent | Cases | Detection | Fix Accuracy | Avg Speed |
 |-------|-------|-----------|-------------|-----------|
 | `unused_import` | 5 | 100% | **100%** | 0.3 ms |
-| `duplicate_var` | 4 | 100% | **100%** | 0.3 ms |
-| `missing_export` | 3 | 100% | **100%** | 0.4 ms |
+| `duplicate_var` | 4 | 100% | **100%** | 0.2 ms |
+| `missing_export` | 7 | 100% | **100%** | 0.4 ms |
 | `export_spelling` | 3 | 100% | **100%** | 0.2 ms |
-| **Overall** | **15** | **100%** | **100%** | **0.3 ms** |
+| `implicit_any` | 3 | 100% | **100%** | 0.2 ms |
+| `missing_return_type` | 2 | 100% | **100%** | 0.2 ms |
+| **Overall** | **24** | **100%** | **100%** | **0.3 ms** |
 
 Zero false positives — clean files are left untouched. All fixes verified against expected output.
 

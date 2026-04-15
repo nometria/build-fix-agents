@@ -10,35 +10,35 @@
         "expected_change": true,
         "produced_edit": true,
         "correct": true,
-        "time_ms": 0.39
+        "time_ms": 0.38
       },
       {
         "name": "multiple_unused_named",
         "expected_change": true,
         "produced_edit": true,
         "correct": true,
-        "time_ms": 0.3
+        "time_ms": 0.31
       },
       {
         "name": "all_unused",
         "expected_change": true,
         "produced_edit": true,
         "correct": true,
-        "time_ms": 0.17
+        "time_ms": 0.24
       },
       {
         "name": "type_import_unused",
         "expected_change": true,
         "produced_edit": true,
         "correct": true,
-        "time_ms": 0.27
+        "time_ms": 0.29
       },
       {
         "name": "no_unused",
         "expected_change": false,
         "produced_edit": false,
         "correct": true,
-        "time_ms": 0.16
+        "time_ms": 0.12
       }
     ]
   },
@@ -46,21 +46,21 @@
     "detection_rate": "4/4",
     "fix_accuracy": "4/4",
     "accuracy_pct": 100,
-    "avg_ms": 0.3,
+    "avg_ms": 0.2,
     "cases": [
       {
         "name": "duplicate_const",
         "expected_change": true,
         "produced_edit": true,
         "correct": true,
-        "time_ms": 0.47
+        "time_ms": 0.36
       },
       {
         "name": "duplicate_function",
         "expected_change": true,
         "produced_edit": true,
         "correct": true,
-        "time_ms": 0.28
+        "time_ms": 0.27
       },
       {
         "name": "duplicate_let",
@@ -74,7 +74,7 @@
         "expected_change": false,
         "produced_edit": false,
         "correct": true,
-        "time_ms": 0.11
+        "time_ms": 0.12
       }
     ]
   },
@@ -89,21 +89,21 @@
         "expected_change": true,
         "produced_edit": true,
         "correct": true,
-        "time_ms": 0.32
+        "time_ms": 0.5
       },
       {
         "name": "missing_function_export",
         "expected_change": true,
         "produced_edit": true,
         "correct": true,
-        "time_ms": 0.65
+        "time_ms": 0.62
       },
       {
         "name": "already_exported",
         "expected_change": false,
         "produced_edit": false,
         "correct": true,
-        "time_ms": 0.17
+        "time_ms": 0.16
       }
     ]
   },
@@ -118,21 +118,108 @@
         "expected_change": true,
         "produced_edit": true,
         "correct": true,
-        "time_ms": 0.32
+        "time_ms": 0.29
       },
       {
         "name": "typo_two_chars",
         "expected_change": true,
         "produced_edit": true,
         "correct": true,
-        "time_ms": 0.15
+        "time_ms": 0.21
       },
       {
         "name": "no_typo",
         "expected_change": false,
         "produced_edit": false,
         "correct": true,
-        "time_ms": 0.1
+        "time_ms": 0.12
+      }
+    ]
+  },
+  "missing_export_extended": {
+    "detection_rate": "4/4",
+    "fix_accuracy": "4/4",
+    "accuracy_pct": 100,
+    "avg_ms": 0.4,
+    "cases": [
+      {
+        "name": "missing_class_export",
+        "expected_change": true,
+        "produced_edit": true,
+        "correct": true,
+        "time_ms": 0.41
+      },
+      {
+        "name": "missing_interface_export",
+        "expected_change": true,
+        "produced_edit": true,
+        "correct": true,
+        "time_ms": 0.38
+      },
+      {
+        "name": "missing_type_export",
+        "expected_change": true,
+        "produced_edit": true,
+        "correct": true,
+        "time_ms": 0.4
+      },
+      {
+        "name": "missing_enum_export",
+        "expected_change": true,
+        "produced_edit": true,
+        "correct": true,
+        "time_ms": 0.5
+      }
+    ]
+  },
+  "implicit_any": {
+    "detection_rate": "3/3",
+    "fix_accuracy": "3/3",
+    "accuracy_pct": 100,
+    "avg_ms": 0.2,
+    "cases": [
+      {
+        "name": "function_param_implicit_any",
+        "expected_change": true,
+        "produced_edit": true,
+        "correct": true,
+        "time_ms": 0.33
+      },
+      {
+        "name": "callback_param_implicit_any",
+        "expected_change": true,
+        "produced_edit": true,
+        "correct": true,
+        "time_ms": 0.15
+      },
+      {
+        "name": "no_implicit_any",
+        "expected_change": false,
+        "produced_edit": false,
+        "correct": true,
+        "time_ms": 0.16
+      }
+    ]
+  },
+  "missing_return_type": {
+    "detection_rate": "2/2",
+    "fix_accuracy": "2/2",
+    "accuracy_pct": 100,
+    "avg_ms": 0.2,
+    "cases": [
+      {
+        "name": "void_function_missing_return",
+        "expected_change": true,
+        "produced_edit": true,
+        "correct": true,
+        "time_ms": 0.27
+      },
+      {
+        "name": "no_missing_return_type",
+        "expected_change": false,
+        "produced_edit": false,
+        "correct": true,
+        "time_ms": 0.18
       }
     ]
   }
