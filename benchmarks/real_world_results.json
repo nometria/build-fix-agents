@@ -1,0 +1,164 @@
+{
+  "project": {
+    "name": "acme-dashboard",
+    "files": 8,
+    "injected_errors": 9,
+    "build_log_lines": 12
+  },
+  "pipeline": {
+    "total_edits": 11,
+    "edits_by_agent": {
+      "unused_import": 2,
+      "duplicate_var": 2,
+      "missing_export": 1,
+      "export_spelling": 1,
+      "implicit_any": 3,
+      "missing_return_type": 2
+    },
+    "pipeline_time_ms": 5.6
+  },
+  "verification": {
+    "passed": 9,
+    "failed": 0,
+    "total": 9,
+    "success_rate": "100%",
+    "by_agent": {
+      "missing_export": {
+        "passed": 1,
+        "total": 1
+      },
+      "implicit_any": {
+        "passed": 2,
+        "total": 2
+      },
+      "unused_import": {
+        "passed": 2,
+        "total": 2
+      },
+      "missing_return_type": {
+        "passed": 2,
+        "total": 2
+      },
+      "duplicate_var": {
+        "passed": 1,
+        "total": 1
+      },
+      "export_spelling": {
+        "passed": 1,
+        "total": 1
+      }
+    },
+    "by_error_code": {
+      "TS2305": {
+        "passed": 1,
+        "total": 1
+      },
+      "TS7006": {
+        "passed": 2,
+        "total": 2
+      },
+      "TS6133": {
+        "passed": 2,
+        "total": 2
+      },
+      "TS7010": {
+        "passed": 2,
+        "total": 2
+      },
+      "TS2451": {
+        "passed": 1,
+        "total": 1
+      },
+      "TS2614": {
+        "passed": 1,
+        "total": 1
+      }
+    },
+    "details": [
+      {
+        "id": "missing_export_ApiResponse",
+        "file": "src/types/index.ts",
+        "description": "ApiResponse interface should be exported",
+        "error_code": "TS2305",
+        "agent": "missing_export",
+        "passed": true
+      },
+      {
+        "id": "implicit_any_config",
+        "file": "src/api/client.ts",
+        "description": "Parameter 'config' should have explicit type",
+        "error_code": "TS7006",
+        "agent": "implicit_any",
+        "passed": true
+      },
+      {
+        "id": "unused_import_AxiosError",
+        "file": "src/api/client.ts",
+        "description": "AxiosError should be removed from imports",
+        "error_code": "TS6133",
+        "agent": "unused_import",
+        "passed": true
+      },
+      {
+        "id": "missing_return_type_validateSession",
+        "file": "src/services/auth.ts",
+        "description": "validateSession should have return type annotation",
+        "error_code": "TS7010",
+        "agent": "missing_return_type",
+        "passed": true
+      },
+      {
+        "id": "duplicate_var_SESSION_KEY",
+        "file": "src/services/auth.ts",
+        "description": "Duplicate SESSION_KEY should be renamed",
+        "error_code": "TS2451",
+        "agent": "duplicate_var",
+        "passed": true
+      },
+      {
+        "id": "export_spelling_UserCrad",
+        "file": "src/components/UserCard.ts",
+        "description": "UserCrad should be renamed to UserCard",
+        "error_code": "TS2614",
+        "agent": "export_spelling",
+        "passed": true
+      },
+      {
+        "id": "unused_imports_Dashboard",
+        "file": "src/pages/Dashboard.ts",
+        "description": "Unused imports (UserId, fetchUser, UserAvatar, login) removed",
+        "error_code": "TS6133",
+        "agent": "unused_import",
+        "passed": true
+      },
+      {
+        "id": "implicit_any_items",
+        "file": "src/utils/helpers.ts",
+        "description": "Parameter 'items' should have explicit type",
+        "error_code": "TS7006",
+        "agent": "implicit_any",
+        "passed": true
+      },
+      {
+        "id": "missing_return_type_formatDate",
+        "file": "src/utils/helpers.ts",
+        "description": "formatDate should have return type annotation",
+        "error_code": "TS7010",
+        "agent": "missing_return_type",
+        "passed": true
+      }
+    ]
+  },
+  "methodology": {
+    "description": "Multi-file TypeScript project with interconnected errors. Tests full pipeline (all 6 agents) with deduplication and edit coordination, simulating a real codebase.",
+    "error_types_tested": [
+      "TS2305 - missing export between modules",
+      "TS7006 - implicit any on function parameters",
+      "TS6133 - unused imports across multiple files",
+      "TS7010 - missing return type annotations",
+      "TS2451 - duplicate variable declarations",
+      "TS2614 - export name typos (Levenshtein fix)"
+    ],
+    "comparison": "SWE-bench TS/JS tasks have 0-30% resolution rates. Our deterministic approach achieves near-100% on the subset of errors that follow fixable patterns."
+  }
+}
