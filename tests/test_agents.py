@@ -103,6 +103,31 @@ def test_levenshtein_threshold():
 # ── UnusedImportAgent ─────────────────────────────────────────────────────────
 
 def test_unused_import_whole_line_removed():
+    """Truly unused import in a non-JSX file should be removed."""
+    project = make_project({
+        "src/util.ts": textwrap.dedent("""
+            import { unusedHelper } from './helpers';
+            import { useState } from 'react';
+
+            export function init() {
+              const [v] = useState(0);
+              return v;
+            }
+        """).lstrip()
+    })
+    result = UnusedImportAgent().run(project)
+    assert result.success
+    # `unusedHelper` should be removed; `useState` is referenced
+    assert len(result.edits) >= 1
+    edit = result.edits[0]
+    assert "unusedHelper" not in edit.new_string
+    assert "useState" in edit.new_string
+
+
+def test_unused_import_react_preserved_in_jsx():
+    """The default React import must NOT be removed from JSX/TSX files
+    even when not literally referenced — required by the classic JSX transform.
+    """
     project = make_project({
         "src/page.tsx": textwrap.dedent("""
             import React from 'react';
@@ -116,9 +141,11 @@ def test_unused_import_whole_line_removed():
     })
     result = UnusedImportAgent().run(project)
     assert result.success
-    # React is unused (no JSX transform implied in this test)
-    # At least one edit removing the unused import
-    assert len(result.edits) >= 1
+    # No edits expected — React is implicitly used by JSX, useState is used directly
+    assert result.edits == [], (
+        f"React must not be removed from JSX files (classic transform breaks build). "
+        f"Got edits: {[e.description for e in result.edits]}"
+    )
 
 
 def test_unused_import_partial_removal():
