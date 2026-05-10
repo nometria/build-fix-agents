@@ -31,10 +31,74 @@ class DuplicateVarAgent(BaseAgent):
             r"function\s+(\w+)\s*\(|"
             r"(?:export\s+)?function\s+(\w+)\s*\("
         )
+
+        # Compute brace-nesting depth at every offset so we can restrict
+        # duplicate detection to declarations at the SAME scope. Two `const x`
+        # in different functions (different scopes) are valid JavaScript and
+        # must NOT be flagged.
+        depth_at: List[int] = [0] * (len(text) + 1)
+        depth = 0
+        # Track whether we're inside a string/template/comment to skip braces there
+        i = 0
+        in_block_comment = False
+        in_line_comment = False
+        in_string = None  # None or quote char
+        in_template = 0   # template-literal nesting (with ${} expressions)
+        while i < len(text):
+            c = text[i]
+            depth_at[i] = depth
+            if in_block_comment:
+                if c == "*" and i + 1 < len(text) and text[i+1] == "/":
+                    in_block_comment = False
+                    i += 2
+                    continue
+            elif in_line_comment:
+                if c == "\n":
+                    in_line_comment = False
+            elif in_string:
+                if c == "\\" and i + 1 < len(text):
+                    i += 2
+                    continue
+                if c == in_string:
+                    in_string = None
+            elif in_template:
+                # In template literal — `}` closes ${} expression; ` closes literal
+                if c == "`":
+                    in_template -= 1
+                elif c == "$" and i + 1 < len(text) and text[i+1] == "{":
+                    # entering ${} — treat as code (depth tracked)
+                    depth += 1
+                    i += 2
+                    continue
+            else:
+                if c == "/" and i + 1 < len(text):
+                    nxt = text[i+1]
+                    if nxt == "/":
+                        in_line_comment = True
+                        i += 2
+                        continue
+                    if nxt == "*":
+                        in_block_comment = True
+                        i += 2
+                        continue
+                if c == '"' or c == "'":
+                    in_string = c
+                elif c == "`":
+                    in_template += 1
+                elif c == "{":
+                    depth += 1
+                elif c == "}":
+                    depth = max(0, depth - 1)
+            i += 1
+        depth_at[len(text)] = depth
+
+        # Only flag TOP-LEVEL duplicates (depth=0). Two `const foo` declarations
+        # in different functions or different `if` blocks are valid JavaScript
+        # (block-scoped) and must NOT be flagged as duplicates.
         declarations: List[Tuple[int, str]] = []
         for m in decl_pattern.finditer(text):
             name = (m.group(1) or m.group(2) or m.group(3) or "").strip()
-            if name and not name.startswith("_"):
+            if name and not name.startswith("_") and depth_at[m.start()] == 0:
                 declarations.append((m.start(), name))
 
         seen: Dict[str, List[int]] = {}

@@ -29,12 +29,27 @@ class UnusedImportAgent(BaseAgent):
         lines = text.split("\n")
         import_idxs = [i for i, ln in enumerate(lines) if re.match(r"^\s*import\s+", ln)]
 
+        # Detect JSX usage: opening tags like <Foo>, <foo>, <Foo />, <>, fragments
+        # Files using JSX with the classic transform need React in scope; we must
+        # never strip the default `React` import from such files.
+        non_import_text = "\n".join(ln for i, ln in enumerate(lines) if i not in import_idxs)
+        has_jsx = bool(re.search(r"<[A-Za-z][\w.]*[\s/>]|<>|</", non_import_text))
+
+        # Names whose import we never strip (implicit usage, side-effect, JSX)
+        ALWAYS_USED = {"React"} if has_jsx else set()
+
         # Collect ALL dead import lines, then remove them in one edit
         dead_lines: List[int] = []
         partial_edits: List[tuple] = []  # (line_idx, new_line)
 
         for idx in import_idxs:
             line = lines[idx]
+            # Skip side-effect imports: `import 'foo'` / `import "foo"`
+            if re.match(r"^\s*import\s+['\"]", line):
+                continue
+            # Skip type-only imports — TS may keep them for declaration files
+            if re.match(r"^\s*import\s+type\b", line):
+                continue
             names: Set[str] = set()
             m = re.match(r"\s*import\s+(.+?)\s+from\s+['\"].+['\"]", line)
             if m:
@@ -42,14 +57,16 @@ class UnusedImportAgent(BaseAgent):
                 names = set(re.findall(r"\b(\w+)\b", part.strip("{}"))) if part.startswith("{") else set(re.findall(r"\b(\w+)\b", part))
             if not names:
                 continue
+            # Drop implicit-use names from "unused" consideration
+            considered = names - ALWAYS_USED
+            if not considered:
+                continue
 
-            # Check usage in everything except import lines
-            non_import_lines = [ln for i, ln in enumerate(lines) if i not in import_idxs]
-            rest = "\n".join(non_import_lines)
-            used = {n for n in names if re.search(r"\b" + re.escape(n) + r"\b", rest)}
-            unused = names - used
+            used = {n for n in considered if re.search(r"\b" + re.escape(n) + r"\b", non_import_text)}
+            unused = considered - used
 
-            if unused == names:
+            if unused == considered and not (names & ALWAYS_USED):
+                # All considered names unused AND no implicit-use names — remove line
                 dead_lines.append(idx)
             elif unused:
                 new_line = line
