@@ -1,5 +1,5 @@
 """
-ExportSpellingAgent — fixes typos in export names using Levenshtein distance ≤ 2.
+ExportSpellingAgent - fixes typos in export names using Levenshtein distance ≤ 2.
 Reads expected symbol names from the build log.
 """
 import re

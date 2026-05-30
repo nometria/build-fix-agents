@@ -1,5 +1,5 @@
 """
-DuplicateVarAgent — renames the second occurrence of a duplicate const/let/var/function
+DuplicateVarAgent - renames the second occurrence of a duplicate const/let/var/function
 declaration in the same file to `<name>_2`.
 """
 import re
@@ -62,11 +62,11 @@ class DuplicateVarAgent(BaseAgent):
                 if c == in_string:
                     in_string = None
             elif in_template:
-                # In template literal — `}` closes ${} expression; ` closes literal
+                # In template literal - `}` closes ${} expression; ` closes literal
                 if c == "`":
                     in_template -= 1
                 elif c == "$" and i + 1 < len(text) and text[i+1] == "{":
-                    # entering ${} — treat as code (depth tracked)
+                    # entering ${} - treat as code (depth tracked)
                     depth += 1
                     i += 2
                     continue

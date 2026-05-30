@@ -1,5 +1,5 @@
 """
-UnusedImportAgent — removes import lines (or individual names from destructured
+UnusedImportAgent - removes import lines (or individual names from destructured
 imports) that are never referenced in the rest of the file.
 """
 import re
@@ -47,7 +47,7 @@ class UnusedImportAgent(BaseAgent):
             # Skip side-effect imports: `import 'foo'` / `import "foo"`
             if re.match(r"^\s*import\s+['\"]", line):
                 continue
-            # Skip type-only imports — TS may keep them for declaration files
+            # Skip type-only imports - TS may keep them for declaration files
             if re.match(r"^\s*import\s+type\b", line):
                 continue
             names: Set[str] = set()
@@ -66,7 +66,7 @@ class UnusedImportAgent(BaseAgent):
             unused = considered - used
 
             if unused == considered and not (names & ALWAYS_USED):
-                # All considered names unused AND no implicit-use names — remove line
+                # All considered names unused AND no implicit-use names - remove line
                 dead_lines.append(idx)
             elif unused:
                 new_line = line

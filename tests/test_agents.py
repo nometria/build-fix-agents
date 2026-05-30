@@ -126,7 +126,7 @@ def test_unused_import_whole_line_removed():
 
 def test_unused_import_react_preserved_in_jsx():
     """The default React import must NOT be removed from JSX/TSX files
-    even when not literally referenced — required by the classic JSX transform.
+    even when not literally referenced - required by the classic JSX transform.
     """
     project = make_project({
         "src/page.tsx": textwrap.dedent("""
@@ -141,7 +141,7 @@ def test_unused_import_react_preserved_in_jsx():
     })
     result = UnusedImportAgent().run(project)
     assert result.success
-    # No edits expected — React is implicitly used by JSX, useState is used directly
+    # No edits expected - React is implicitly used by JSX, useState is used directly
     assert result.edits == [], (
         f"React must not be removed from JSX files (classic transform breaks build). "
         f"Got edits: {[e.description for e in result.edits]}"
@@ -179,5 +179,5 @@ def test_no_edits_on_clean_file():
     all_edits = []
     for agent in get_all_agents():
         all_edits.extend(agent.run(project).edits)
-    # Should be no edits — the file is clean
+    # Should be no edits - the file is clean
     assert all_edits == []

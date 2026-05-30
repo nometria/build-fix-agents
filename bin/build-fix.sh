@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# npx build-fix wrapper — installs the Python package and forwards all args.
+# npx build-fix wrapper - installs the Python package and forwards all args.
 #
 # Usage:
 #   npx build-fix .

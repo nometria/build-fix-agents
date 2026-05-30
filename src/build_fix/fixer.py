@@ -141,7 +141,7 @@ def apply_build_fix(
         )
 
     _revert(root, backup)
-    return _result(False, "Fixes reverted — build still failed after patching.", [], False, True,
+    return _result(False, "Fixes reverted - build still failed after patching.", [], False, True,
                    build_output=output[:2000])
 
 

@@ -1,6 +1,6 @@
 # build-fix
 
-Built by the [Nometria](https://nometria.com) team. We help developers take apps built with AI tools (Lovable, Bolt, Base44, Replit) to production — handling deployment to AWS, security, scaling, and giving you full code ownership. [Learn more →](https://nometria.com)
+Built by the [Nometria](https://nometria.com) team. We help developers take apps built with AI tools (Lovable, Bolt, Base44, Replit) to production - handling deployment to AWS, security, scaling, and giving you full code ownership. [Learn more →](https://nometria.com)
 
 > Auto-repair TypeScript / JavaScript build errors in one command.
 
@@ -58,7 +58,7 @@ Tested against 24 synthetic TypeScript/JS files with known build errors. Each ag
 | `missing_return_type` | 2 | 100% | **100%** | 0.2 ms |
 | **Overall** | **24** | **100%** | **100%** | **0.3 ms** |
 
-Zero false positives — clean files are left untouched. All fixes verified against expected output.
+Zero false positives - clean files are left untouched. All fixes verified against expected output.
 
 Run benchmarks yourself:
 
@@ -296,7 +296,7 @@ Register in `src/agents/__init__.py → get_all_agents()`.
 
 ## Commercial viability
 - VS Code extension marketplace: $5–9/mo subscription
-- GitHub App: auto-fix PR on CI failure — charge per repo/seat
+- GitHub App: auto-fix PR on CI failure - charge per repo/seat
 - Cursor / Windsurf plugin: native AI-fix integration
 
 ---
